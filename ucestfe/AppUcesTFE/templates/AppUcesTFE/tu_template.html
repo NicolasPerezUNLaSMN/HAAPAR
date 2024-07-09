@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Variables del Proyecto</title>
+</head>
+<body>
+    <h1>Variables del Proyecto {{ proyecto_id }}</h1>
+    <ul>
+        {% for variable in variables %}
+            <li>{{ variable.nombre }} : {{ variable.descripcion }}</li>
+            <li>{{ variable.tendencias }} </li>
+            <li> -------------------  </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

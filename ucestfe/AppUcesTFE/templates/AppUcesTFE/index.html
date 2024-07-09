@@ -7,7 +7,7 @@
 <html>
 	<head>
 		{% load static %}
-		<title>Dimension by HTML5 UP</title>
+		<title>HAAPar - Uces</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<link rel="stylesheet" href="{% static 'AppUcesTFE/assets/css/main.css' %}" />
@@ -34,6 +34,7 @@
 							<ul>
 								<li><a href="#intro">INFO</a></li>
 								<li><a href="#envio">ENVIO</a></li>
+								<li><a href="#estudios">ESTUDIOS</a></li>
 								<li><a href="#work">ANALISIS</a></li>
 								<li><a href="#about">RESULTADOS</a></li>
 								<li><a href="#otros">Otros...</a></li>
@@ -95,6 +96,37 @@
 										
 									</ul>
 								</form>
+							</article>
+
+
+							<!-- estudios -->
+							<article id="estudios">
+
+								<h1>Proyectos guardados</h1>
+								<table>
+									<thead>
+										<tr>
+											<th>Tema</th>
+											<th>Hasta</th>
+											<th>Precisión</th>
+											<th>Usuario</th>
+											<th>Acciones</th>
+										</tr>
+									</thead>
+									<tbody>
+										{% for proyecto in proyectos %}
+										<tr>
+											<td>{{ proyecto.tema }}</td>
+											<td>{{ proyecto.hasta }}</td>
+											<td>{{ proyecto.precision }}</td>
+											<td>{{ proyecto.usuario.username }}</td>
+											<td><a href="{% url 'detalle_proyecto' proyecto.id %}">Ver detalles</a></td>
+										</tr>
+										{% endfor %}
+									</tbody>
+								</table>
+								
+								
 							</article>
 
 

@@ -1,0 +1,672 @@
+﻿<!DOCTYPE HTML>
+<!--
+	Dimension by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		{% load static %}
+		
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="{% static 'AppUcesTFE/assets/css/main.css' %}" />
+		<noscript><link rel="stylesheet" href="{% static 'AppUcesTFE/assets/css/noscript.css' %}" /></noscript>
+	
+
+		<title>HAAPar - Uces - Detalle del Proyecto</title>
+		<script src="https://code.highcharts.com/highcharts.js"></script>
+		<script src="https://code.highcharts.com/modules/heatmap.js"></script>
+		<script src="https://code.highcharts.com/modules/scatter.js"></script>
+		<script src="https://code.highcharts.com/modules/exporting.js"></script>
+		<script src="https://code.highcharts.com/modules/treemap.js"></script>
+		<script src="https://code.highcharts.com/modules/treegraph.js"></script>
+		<style>
+			.quadrant {
+				position: relative;
+				width: 50%;
+				height: 50vh;
+				border: 1px solid #ccc;
+			}
+			.quadrant .line {
+				position: absolute;
+				background: #000;
+			}
+			.quadrant .line.horizontal {
+				width: 100%;
+				height: 1px;
+				top: 50%;
+			}
+			.quadrant .line.vertical {
+				width: 1px;
+				height: 100%;
+				left: 50%;
+			}
+			.quadrant .label {
+				position: absolute;
+			}
+			.quadrant .label.pos {
+				bottom: 0;
+				right: 0;
+			}
+			.quadrant .label.neg {
+				top: 0;
+				left: 0;
+			}
+			.quadrant .label.pos1 {
+				bottom: 0;
+				left: 0;
+			}
+			.quadrant .label.neg1 {
+				top: 0;
+				right: 0;
+			}
+			table {
+				width: 100%;
+				border-collapse: collapse;
+				margin-bottom: 20px;
+			}
+			table, th, td {
+				border: 1px solid black;
+			}
+			th, td {
+				padding: 8px;
+				text-align: left;
+			}
+		</style>
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+			
+
+				
+
+						
+							
+							
+						
+							
+
+
+						<!-- Contact -->
+							<article id="contact">
+								
+								<form >
+									
+
+
+									<h1 style="text-align: center;">Detalle del Proyecto: {{ proyecto.tema }} -  {{ proyecto.hasta }}</h1>
+
+   
+
+    <h2 style="text-align: center;">Variables del Proyecto</h2>
+    <ol>
+    {% for variable in variables %}
+        <li>
+            <p><strong>Nombre:</strong> {{ variable.nombre }} / {{ variable.categoria }} / {{ variable.nombre_corto }}  </p>
+            <p><strong>Descripción:</strong> {{ variable.descripcion }}</p>
+           
+		</li>
+    {% endfor %}
+    </ol>
+
+	<h2 style="text-align: center;">Gráfico de Dispersión: Importancia e Incertidumbre</h2>
+    <div id="containerImportanceUncertainty" style="height: 600px; max-width: 800px; margin: 0 auto;"></div>
+
+    <h2 style="text-align: center;">Matriz de Valores  - MIC-MAC</h2>
+    <div id="container3" style="height: 600px; max-width: 800px; margin: 0 auto;"></div>
+
+    <h2 style="text-align: center;">Gráfico de Dispersión - MIC-MAC</h2>
+    <div id="containerScatter" style="height: 600px; max-width: 800px; margin: 0 auto;"></div>
+
+    <h2 style="text-align: center;">Matriz de Valores  - MIC-MAC - Indirecto</h2>
+    <div id="container32" style="height: 600px; max-width: 800px; margin: 0 auto;"></div>
+
+    <h2 style="text-align: center;">Gráfico de Dispersión - MIC-MAC - Indirecto</h2>
+    <div id="containerScatter2" style="height: 600px; max-width: 800px; margin: 0 auto;"></div>
+
+    <h2 style="text-align: center;">Ejes de Peter- Schwartz</h2>
+    <p><strong>Variable X:</strong> {{ variables_mas_relevantes.0.nombre }}</p>
+    <p><strong>Variable Y:</strong> {{ variables_mas_relevantes.1.nombre }}</p>
+    <div class="quadrant">
+        <div class="line horizontal"></div>
+        <div class="line vertical"></div>
+        <div class="label pos">{{ quadrant_names.0 }}</div>
+        <div class="label neg">{{ quadrant_names.1 }}</div>
+        <div class="label pos1">{{ quadrant_names.2 }}</div>
+        <div class="label neg1">{{ quadrant_names.3 }}</div>
+    </div>
+
+    <h2>Árbol PESTEL</h2>
+    <div id="container4" style="height: 600px; max-width: 800px; margin: 0 auto;"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const importanceUncertaintyData = {{ importance_uncertainty_data|safe }};
+            const scatterData = {{ scatter_data|safe }};
+            const scatterData2 = {{ scatter_data2|safe }};
+            const treeData = {{ tree_data|safe }};
+            
+            // Calcular el valor medio para las líneas divisorias
+            const importanceValues = importanceUncertaintyData.map(point => point.x);
+            const uncertaintyValues = importanceUncertaintyData.map(point => point.y);
+
+            const scatterXValues = scatterData.map(point => point.x);
+            const scatterYValues = scatterData.map(point => point.y);
+
+            const scatterXValues2 = scatterData2.map(point => point.x);
+            const scatterYValues2 = scatterData2.map(point => point.y);
+
+            const avgImportance = importanceValues.reduce((a, b) => a + b, 0) / importanceValues.length;
+            const avgUncertainty = uncertaintyValues.reduce((a, b) => a + b, 0) / uncertaintyValues.length;
+
+            const avgScatterX = scatterXValues.reduce((a, b) => a + b, 0) / scatterXValues.length;
+            const avgScatterY = scatterYValues.reduce((a, b) => a + b, 0) / scatterYValues.length;
+
+            const avgScatterX2 = scatterXValues2.reduce((a, b) => a + b, 0) / scatterXValues2.length;
+            const avgScatterY2 = scatterYValues2.reduce((a, b) => a + b, 0) / scatterYValues2.length;
+
+            Highcharts.chart('containerImportanceUncertainty', {
+                chart: {
+                    type: 'scatter',
+                    zoomType: 'xy'
+                },
+                title: {
+                    text: 'Gráfico de Dispersión: Importancia e Incertidumbre'
+                },
+                xAxis: {
+                    title: {
+                        text: 'Importancia'
+                    },
+                    min: 0,
+                    plotLines: [{
+                        color: 'gray',
+                        dashStyle: 'dash',
+                        width: 1,
+                        value: avgImportance,
+                        zIndex: 3
+                    }]
+                },
+                yAxis: {
+                    title: {
+                        text: 'Incertidumbre'
+                    },
+                    min: 0,
+                    plotLines: [{
+                        color: 'gray',
+                        dashStyle: 'dash',
+                        width: 1,
+                        value: avgUncertainty,
+                        zIndex: 3
+                    }]
+                },
+                tooltip: {
+                    useHTML: true,
+                    headerFormat: '<table>',
+                    pointFormat: '<tr><th>Variable:</th><td>{point.name}</td></tr>' +
+                                 '<tr><th>Importancia:</th><td>{point.x}</td></tr>' +
+                                 '<tr><th>Incertidumbre:</th><td>{point.y}</td></tr>',
+                    footerFormat: '</table>',
+                    followPointer: true
+                },
+                plotOptions: {
+                    scatter: {
+                        marker: {
+                            radius: 5,
+                            states: {
+                                hover: {
+                                    enabled: true,
+                                    lineColor: 'rgb(100,100,100)'
+                                }
+                            }
+                        },
+                        states: {
+                            hover: {
+                                marker: {
+                                    enabled: false
+                                }
+                            }
+                        },
+                        tooltip: {
+                            headerFormat: '<b>{series.name}</b><br>',
+                            pointFormat: '{point.name}<br> IMPO:{point.x} , INCE:{point.y}'
+                        }
+                    }
+                },
+                series: [{
+                    name: 'Variables',
+                    color: 'rgba(223, 83, 83, .5)',
+                    data: importanceUncertaintyData
+                }]
+            });
+
+            Highcharts.chart('container3', {
+                chart: {
+                    type: 'heatmap',
+                    marginTop: 40,
+                    marginBottom: 80,
+                    plotBorderWidth: 1
+                },
+                title: {
+                    text: 'Matriz MIC-MAC del Proyecto: {{ proyecto.tema }} al {{ proyecto.hasta}}',
+                    style: {
+                        fontSize: '1em'
+                    }
+                },
+                xAxis: {
+                    categories: {{ x_categories|safe }}
+                },
+                yAxis: {
+                    categories: {{ y_categories|safe }},
+                    title: null,
+                    reversed: true
+                },
+                accessibility: {
+                    point: {
+                        descriptionFormat: '{point.index + 1}. {series.xAxis.categories[point.x]} <br>influye en {series.yAxis.categories[point.y]}, {point.value}.'
+                    }
+                },
+                colorAxis: {
+                    min: 0,
+                    minColor: '#FFFFFF',
+                    maxColor: Highcharts.getOptions().colors[8]
+                },
+                legend: {
+                    align: 'right',
+                    layout: 'vertical',
+                    margin: 0,
+                    verticalAlign: 'top',
+                    y: 25,
+                    symbolHeight: 280
+                },
+                tooltip: {
+                    formatter: function () {
+                        return 'La variable: <b>' + this.series.yAxis.categories[this.point.y] + '</b> <br>influye en <b>' +
+                            this.point.value + '</b> en <br>la variable: <b>' + this.series.xAxis.categories[this.point.x] + '</b>';
+                    }
+                },
+                series: [{
+                    name: 'Influencia entre variables',
+                    borderWidth: 1,
+                    data: {{ data|safe }},
+                    dataLabels: {
+                        enabled: true,
+                        color: '#000000'
+                    }
+                }],
+                responsive: {
+                    rules: [{
+                        condition: {
+                            maxWidth: 500
+                        },
+                        chartOptions: {
+                            yAxis: {
+                                labels: {
+                                    formatter: function () {
+                                        return this.value.charAt(0);
+                                    }
+                                }
+                            }
+                        }
+                    }]
+                }
+            });
+
+
+            Highcharts.chart('container32', {
+                chart: {
+                    type: 'heatmap',
+                    marginTop: 40,
+                    marginBottom: 80,
+                    plotBorderWidth: 1
+                },
+                title: {
+                    text: 'Matriz MIC-MAC del Proyecto: {{ proyecto.tema }} al {{ proyecto.hasta}}',
+                    style: {
+                        fontSize: '1em'
+                    }
+                },
+                xAxis: {
+                    categories: {{ x_categories2|safe }}
+                },
+                yAxis: {
+                    categories: {{ y_categories2|safe }},
+                    title: null,
+                    reversed: true
+                },
+                accessibility: {
+                    point: {
+                        descriptionFormat: '{point.index + 1}. {series.xAxis.categories[point.x]} <br>influye en {series.yAxis.categories[point.y]}, {point.value}.'
+                    }
+                },
+                colorAxis: {
+                    min: 0,
+                    minColor: '#FFFFFF',
+                    maxColor: Highcharts.getOptions().colors[4]
+                },
+                legend: {
+                    align: 'right',
+                    layout: 'vertical',
+                    margin: 0,
+                    verticalAlign: 'top',
+                    y: 25,
+                    symbolHeight: 280
+                },
+                tooltip: {
+                    formatter: function () {
+                        return 'La variable: <b>' + this.series.yAxis.categories[this.point.y] + '</b> <br>influye en <b>' +
+                            this.point.value + '</b> en <br>la variable: <b>' + this.series.xAxis.categories[this.point.x] + '</b>';
+                    }
+                },
+                series: [{
+                    name: 'Influencia indirecta entre variables',
+                    borderWidth: 1,
+                    data: {{ data2|safe }},
+                    dataLabels: {
+                        enabled: true,
+                        color: '#000000'
+                    }
+                }],
+                responsive: {
+                    rules: [{
+                        condition: {
+                            maxWidth: 500
+                        },
+                        chartOptions: {
+                            yAxis: {
+                                labels: {
+                                    formatter: function () {
+                                        return this.value.charAt(0);
+                                    }
+                                }
+                            }
+                        }
+                    }]
+                }
+            });
+
+
+            Highcharts.chart('containerScatter', {
+                chart: {
+                    type: 'scatter',
+                    zoomType: 'xy'
+                },
+                title: {
+                    text: 'Gráfico de Dispersión de MIC-MAC - Influencia vs Dependencia'
+                },
+                xAxis: {
+                    title: {
+                        text: '(Influencia)'
+                    },
+                    min: 0,
+                    plotLines: [{
+                        color: 'gray',
+                        dashStyle: 'dash',
+                        width: 1,
+                        value: avgScatterX,
+                        zIndex: 3
+                    }]
+                },
+                yAxis: {
+                    title: {
+                        text: '(Dependencia)'
+                    },
+                    min: 0,
+                    plotLines: [{
+                        color: 'gray',
+                        dashStyle: 'dash',
+                        width: 1,
+                        value: avgScatterY,
+                        zIndex: 3
+                    }]
+                },
+                tooltip: {
+                    useHTML: true,
+                    headerFormat: '<table>',
+                    pointFormat: '<tr><th>Variable:</th><td>{point.name}</td></tr>' +
+                                 '<tr><th>Influencia (Suma Fila):</th><td>{point.x}</td></tr>' +
+                                 '<tr><th>Dependencia (Suma Columna):</th><td>{point.y}</td></tr>',
+                    footerFormat: '</table>',
+                    followPointer: true
+                },
+                plotOptions: {
+                    scatter: {
+                        marker: {
+                            radius: 5,
+                            states: {
+                                hover: {
+                                    enabled: true,
+                                    lineColor: 'rgb(100,100,100)'
+                                }
+                            }
+                        },
+                        states: {
+                            hover: {
+                                marker: {
+                                    enabled: false
+                                }
+                            }
+                        },
+                        tooltip: {
+                            headerFormat: '<b>{series.name}</b><br>',
+                            pointFormat: '{point.name}:<br>Influencia: {point.x} , Dependencia: {point.y}'
+                        }
+                    }
+                },
+                series: [{
+                    name: 'Variables',
+                    color: 'rgba(223, 83, 83, .5)',
+                    data: scatterData
+                }]
+            });
+
+
+            Highcharts.chart('containerScatter2', {
+                chart: {
+                    type: 'scatter',
+                    zoomType: 'xy'
+                },
+                title: {
+                    text: 'Gráfico de Dispersión de MIC-MAC - Influencia vs Dependencia- Indirecta'
+                },
+                xAxis: {
+                    title: {
+                        text: '(Influencia)'
+                    },
+                    min: 0,
+                    plotLines: [{
+                        color: 'gray',
+                        dashStyle: 'dash',
+                        width: 1,
+                        value: avgScatterX2,
+                        zIndex: 3
+                    }]
+                },
+                yAxis: {
+                    title: {
+                        text: '(Dependencia)'
+                    },
+                    min: 0,
+                    plotLines: [{
+                        color: 'gray',
+                        dashStyle: 'dash',
+                        width: 1,
+                        value: avgScatterY2,
+                        zIndex: 3
+                    }]
+                },
+                tooltip: {
+                    useHTML: true,
+                    headerFormat: '<table>',
+                    pointFormat: '<tr><th>Variable:</th><td>{point.name}</td></tr>' +
+                                 '<tr><th>Influencia (Suma Fila):</th><td>{point.x}</td></tr>' +
+                                 '<tr><th>Dependencia (Suma Columna):</th><td>{point.y}</td></tr>',
+                    footerFormat: '</table>',
+                    followPointer: true
+                },
+                plotOptions: {
+                    scatter: {
+                        marker: {
+                            radius: 5,
+                            states: {
+                                hover: {
+                                    enabled: true,
+                                    lineColor: 'rgb(100,100,100)'
+                                }
+                            }
+                        },
+                        states: {
+                            hover: {
+                                marker: {
+                                    enabled: false
+                                }
+                            }
+                        },
+                        tooltip: {
+                            headerFormat: '<b>{series.name}</b><br>',
+                            pointFormat: '{point.name}:<br>Influencia: {point.x} , Dependencia: {point.y}'
+                        }
+                    }
+                },
+                series: [{
+                    name: 'Variables',
+                    color: 'rgba(223, 83, 83, .5)',
+                    data: scatterData2
+                }]
+            });
+
+
+            Highcharts.chart('container4', {
+                title: {
+                    text: 'Árbol PESTEL del Proyecto'
+                },
+                series: [{
+                    type: 'treegraph',
+                    data: treeData,
+                    tooltip: {
+                        pointFormat: '{point.name}'
+                    },
+                    marker: {
+                        symbol: 'rect',
+                        width: '20%'
+                    },
+                    borderRadius: 5,
+                    dataLabels: {
+                        pointFormat: '{point.name2}',
+                        style: {
+                            whiteSpace: 'nowrap'
+                        }
+                    },
+                    levels: [{
+                        level: 1,
+                        levelIsConstant: false
+                    }, {
+                        level: 2,
+                        colorByPoint: true
+                    }, {
+                        level: 3,
+                        colorVariation: {
+                            key: 'brightness',
+                            to: -0.5
+                        }
+                    }]
+                }]
+            });
+        });
+    </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+									
+								</form>
+
+								<ul style="text-align: center;">
+									<li style="display: inline-block;"><input type="submit" value="Volver" class="primary" /></li>
+								</ul>
+								
+								<ul class="icons" style="text-align: center;">
+									<li style="display: inline-block;"><a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
+									<li style="display: inline-block;"><a href="#" class="icon brands fa-facebook-f"><span class="label">Facebook</span></a></li>
+									<li style="display: inline-block;"><a href="#" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>
+									<li style="display: inline-block;"><a href="#" class="icon brands fa-github"><span class="label">GitHub</span></a></li>
+								</ul>
+							</article>
+
+							
+
+					
+
+				<!-- Footer -->
+					<footer id="footer">
+						<p class="copyright"> Desarrollado por [PEREZ, Nicol&aacute;s] &copy [2024] Todos los derechos reservados.  Dise&ntilde;o web: <a href="https://html5up.net">HTML5 UP</a>. <a href="https://www.uces.edu.ar/carreras-posgrados/ciencias-de-la-administracion-comunicacion-y-negocios/especializacion-prospectiva-estrategica-modalidad-virtual">Pensado para UCES - EPE</a>.</p>
+					</footer>
+
+			</div>
+
+		<!-- BG -->
+			<div id="bg"></div>
+
+		<!-- Scripts -->
+			<script src="{% static 'AppUcesTFE/assets/js/jquery.min.js' %}"></script>
+			<script src="{% static 'AppUcesTFE/assets/js/browser.min.js' %}"></script>
+			<script src="{% static 'AppUcesTFE/assets/js/breakpoints.min.js' %}"></script>
+			<script src="{% static 'AppUcesTFE/assets/js/util.js' %}"></script>
+			<script src="{% static 'AppUcesTFE/assets/js/main.js' %}"></script>
+			
+			
+			
+			
+		<!-- Graficado-->
+		<script src="https://code.highcharts.com/highcharts.js"></script>
+		<script src="https://code.highcharts.com/highcharts-more.js"></script>
+		
+		<script src="https://code.highcharts.com/modules/treemap.js"></script>
+		<script src="https://code.highcharts.com/modules/treegraph.js"></script>
+		
+		<script src="https://code.highcharts.com/modules/exporting.js"></script>
+		<script src="https://code.highcharts.com/modules/export-data.js"></script>
+		
+		<script src="https://code.highcharts.com/modules/accessibility.js"></script>
+	    <script src="https://code.highcharts.com/modules/heatmap.js"></script>
+		
+		
+		
+
+
+		<script src="{% static 'AppUcesTFE/disper.js' %}"></script>
+	
+
+	</body>
+</html>

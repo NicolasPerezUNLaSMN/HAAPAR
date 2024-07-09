@@ -10,10 +10,27 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
+
+
 from pathlib import Path
+import os
+
+from celery import Celery
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Establece el módulo de configuración de Django para Celery
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ucestfe.settings')
+
+app = Celery('ucestfe')
+
+# Usa una cadena aquí significa que no tienes que serializar
+# la configuración del objeto en el archivo Celery.
+app.config_from_object('django.conf:settings', namespace='CELERY')
+
+# Carga automáticamente las tareas de todos los archivos tasks.py en el proyecto
+app.autodiscover_tasks()
 
 
 # Quick-start development settings - unsuitable for production
@@ -122,3 +139,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
