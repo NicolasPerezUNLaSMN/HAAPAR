@@ -57,6 +57,11 @@ INSTALLED_APPS = [
     "AppUcesTFE",
 ]
 
+
+LOGIN_URL = 'login'
+
+
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -67,12 +72,14 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+LOGIN_REDIRECT_URL = '/AppUcesTFE/'
+LOGOUT_REDIRECT_URL = '/accounts/login/'
 ROOT_URLCONF = 'ucestfe.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

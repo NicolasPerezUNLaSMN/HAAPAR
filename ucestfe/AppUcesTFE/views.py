@@ -1,8 +1,12 @@
 from django.shortcuts import render
 
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 import json
+from django.contrib.auth.decorators import login_required
+
+
+
 
 from .funciones import *
 
@@ -14,6 +18,25 @@ from .tasks import procesar_proyecto_task
 from datetime import datetime
 
 # Create your views here.
+
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.forms import UserCreationForm
+from .forms import SignUpForm
+
+def signup(request):
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            user.refresh_from_db()  # Cargar el perfil recién creado
+            user.save()
+            raw_password = form.cleaned_data.get('password1')
+            user = authenticate(username=user.username, password=raw_password)
+            login(request, user)
+            return redirect('inicio')  # Redirigir a la página de inicio o donde prefieras
+    else:
+        form = SignUpForm()
+    return render(request, 'registration/signup.html', {'form': form})
 
 
 def inicio(request):
@@ -29,6 +52,7 @@ def  detalles(request):
     return render(request, 'AppUcesTFE/detalles.html', {'proyectos': proyectos})
 
 
+@login_required
 def detalle_proyecto(request, proyecto_id):
     
 
@@ -42,6 +66,11 @@ def detalle_proyecto(request, proyecto_id):
     elementos_matriz2 = ElementoMatrizCuadrada.objects.filter(matrizCuadrada=matriz2).order_by('fila', 'columna')
 
 
+    fortalezas = Fortaleza.objects.filter(proyecto=proyecto)
+    debilidades = Debilidad.objects.filter(proyecto=proyecto)
+    oportunidades = Oportunidad.objects.filter(proyecto=proyecto)
+    amenazas = Amenaza.objects.filter(proyecto=proyecto)
+    actores = Actor.objects.filter(proyecto=proyecto)
 
     # Crear una estructura de matriz con filas y columnas adicionales
     cant_var = variables.count()
@@ -221,10 +250,15 @@ def detalle_proyecto(request, proyecto_id):
         'scatter_data': json.dumps(scatter_data),
         'scatter_data2': json.dumps(scatter_data2),
         'importance_uncertainty_data': json.dumps(importance_uncertainty_data),
-        'tree_data': json.dumps(tree_data)  # Pasar los datos del árbol al template
+        'tree_data': json.dumps(tree_data),  # Pasar los datos del árbol al template
+        'fortalezas': fortalezas,
+        'debilidades': debilidades,
+        'oportunidades': oportunidades,
+        'amenazas': amenazas,
+        'actores': actores
     })
 
-
+@login_required
 def procesar_proyecto(request):
 
   

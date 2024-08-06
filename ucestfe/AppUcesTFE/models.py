@@ -13,6 +13,7 @@ from django.shortcuts import render
 #Usuario -< proyecto -< Variable
 
 
+
 class Proyecto(models.Model):
 
     tema = models.CharField(max_length=500)

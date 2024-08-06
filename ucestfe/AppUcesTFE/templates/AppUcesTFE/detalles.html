@@ -21,12 +21,45 @@
 		<script src="https://code.highcharts.com/modules/exporting.js"></script>
 		<script src="https://code.highcharts.com/modules/treemap.js"></script>
 		<script src="https://code.highcharts.com/modules/treegraph.js"></script>
+
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+        <style>
+
+            .fortalezas-bg {
+                background-color: #d4edda; /* Verde claro */
+            }
+            .debilidades-bg {
+                background-color: #f8d7da; /* Rojo claro */
+            }
+            .oportunidades-bg {
+                background-color: #d1ecf1; /* Azul claro */
+            }
+            .amenazas-bg {
+                background-color: #fff3cd; /* Amarillo claro */
+            }
+            .card-header button {
+                color: #000 !important; /* Letra en negro para el botón */
+            }
+            .card-body {
+                color: #000 !important; /* Letra en negro para el contenido */
+            }
+
+            .card-body p, .card-body p strong {
+                color: #000 !important; /* Letra en negro para los párrafos y textos en negrita dentro del cuerpo */
+            }
+            .label.pos, .label.neg, .label.pos1, .label.neg1 {
+                color: #fff !important; /* Letra en blanco para los divs especificados */
+            }
+        </style>
+
+   
 		<style>
+            
 			.quadrant {
 				position: relative;
 				width: 50%;
 				height: 50vh;
-				border: 1px solid #ccc;
+				border: 1px dotted #fff;
 			}
 			.quadrant .line {
 				position: absolute;
@@ -36,12 +69,39 @@
 				width: 100%;
 				height: 1px;
 				top: 50%;
+                border: 1px dotted #fff;
 			}
+            .quadrant .line.horizontal::after {
+                content: '';
+                position: absolute;
+                top: -3px; /* Ajustar según el tamaño de la flecha */
+                right: -5px; /* Ajustar según el tamaño de la flecha */
+                width: 0;
+                height: 0;
+                border-left: 15px solid #fff; /* Color de la flecha */
+                border-top: 3px solid transparent;
+                border-bottom: 3px solid transparent;
+            }
+
 			.quadrant .line.vertical {
 				width: 1px;
 				height: 100%;
 				left: 50%;
+                border: 1px dotted #fff;
+                position: relative; /* Necesario para el pseudo-elemento */
 			}
+
+            .quadrant .line.vertical::after {
+                content: '';
+                position: absolute;
+                bottom: 98%; /* Posiciona la flecha en la parte superior */
+                left: -5px; /* Ajustar según el tamaño de la flecha */
+                width: 0;
+                height: 0;
+                border-bottom: 15px solid #fff; /* Color de la flecha */
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+            }
 			.quadrant .label {
 				position: absolute;
 			}
@@ -74,6 +134,8 @@
 				text-align: left;
 			}
 		</style>
+
+
 	</head>
 	<body class="is-preload">
 
@@ -94,44 +156,64 @@
 						<!-- Contact -->
 							<article id="contact">
 								
-								<form >
+								
+                                    <form  action="{% url 'inicio' %}">
+                                        {% csrf_token %}
 									
 
 
 									<h1 style="text-align: center;">Detalle del Proyecto: {{ proyecto.tema }} -  {{ proyecto.hasta }}</h1>
 
-   
+                                    <br><br>
+                                    <h2 class="text-center my-4">Variables del Proyecto</h2>
+                                    <div class="accordion" id="accordionVariables">
+                                        {% for variable in variables %}
+                                        <div class="card">
+                                            <div class="card-header" id="heading{{ forloop.counter }}">
+                                                <h2 class="mb-0 d-flex justify-content-center">
+                                                    <button class="btn btn-link text-dark" type="button" data-toggle="collapse" data-target="#collapse{{ forloop.counter }}" aria-expanded="false" aria-controls="collapse{{ forloop.counter }}">
+                                                        {{ variable.nombre }} // {{ variable.nombre_corto }}
+                                                    </button>
+                                                </h2>
+                                            </div>
+                                            <div id="collapse{{ forloop.counter }}" class="collapse" aria-labelledby="heading{{ forloop.counter }}" data-parent="#accordionVariables">
+                                                <div class="card-body text-dark">
+                                                    <p><strong>Variable del tipo:</strong> {{ variable.tipo }}</p>
+                                                    <p><strong>Descripción:</strong> {{ variable.descripcion }}</p>
+                                                    <p><strong>Tendencias:</strong> {{ variable.tendencias }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
 
-    <h2 style="text-align: center;">Variables del Proyecto</h2>
-    <ol>
-    {% for variable in variables %}
-        <li>
-            <p><strong>Nombre:</strong> {{ variable.nombre }} / {{ variable.categoria }} / {{ variable.nombre_corto }}  </p>
-            <p><strong>Descripción:</strong> {{ variable.descripcion }}</p>
-           
-		</li>
-    {% endfor %}
-    </ol>
-
+                                    <br><br>
 	<h2 style="text-align: center;">Gráfico de Dispersión: Importancia e Incertidumbre</h2>
     <div id="containerImportanceUncertainty" style="height: 600px; max-width: 800px; margin: 0 auto;"></div>
 
+    <br><br>
     <h2 style="text-align: center;">Matriz de Valores  - MIC-MAC</h2>
     <div id="container3" style="height: 600px; max-width: 800px; margin: 0 auto;"></div>
 
+    <br><br>
     <h2 style="text-align: center;">Gráfico de Dispersión - MIC-MAC</h2>
     <div id="containerScatter" style="height: 600px; max-width: 800px; margin: 0 auto;"></div>
 
+    <br><br>
     <h2 style="text-align: center;">Matriz de Valores  - MIC-MAC - Indirecto</h2>
     <div id="container32" style="height: 600px; max-width: 800px; margin: 0 auto;"></div>
 
+    <br><br>
     <h2 style="text-align: center;">Gráfico de Dispersión - MIC-MAC - Indirecto</h2>
     <div id="containerScatter2" style="height: 600px; max-width: 800px; margin: 0 auto;"></div>
 
+    <br><br>
     <h2 style="text-align: center;">Ejes de Peter- Schwartz</h2>
-    <p><strong>Variable X:</strong> {{ variables_mas_relevantes.0.nombre }}</p>
-    <p><strong>Variable Y:</strong> {{ variables_mas_relevantes.1.nombre }}</p>
-    <div class="quadrant">
+    <h6 style="text-align: center;"> <strong>Variable X:</strong> {{ variables_mas_relevantes.0.nombre }}</h6>
+    <h6 style="text-align: center;"><strong>Variable Y:</strong> {{ variables_mas_relevantes.1.nombre }}</h6>
+
+    <br>
+    <div class="quadrant" id="quadrant"  style="height: 600px; max-width: 800px; margin: 0 auto;">
         <div class="line horizontal"></div>
         <div class="line vertical"></div>
         <div class="label pos">{{ quadrant_names.0 }}</div>
@@ -139,10 +221,116 @@
         <div class="label pos1">{{ quadrant_names.2 }}</div>
         <div class="label neg1">{{ quadrant_names.3 }}</div>
     </div>
-
-    <h2>Árbol PESTEL</h2>
+ 
+    <br><br>
+    <h2 style="text-align: center;">Árbol PESTEL</h2>
     <div id="container4" style="height: 600px; max-width: 800px; margin: 0 auto;"></div>
 
+    <br><br>
+    <h2 class="text-center my-4">Análisis FODA</h2>
+    <div class="accordion" id="accordionFoda">
+        <div class="card fortalezas-bg">
+            <div class="card-header" id="headingFortalezas">
+                <h2 class="mb-0 d-flex justify-content-center">
+                    <button class="btn btn-link text-dark" type="button" data-toggle="collapse" data-target="#collapseFortalezas" aria-expanded="false" aria-controls="collapseFortalezas">
+                        Fortalezas
+                    </button>
+                </h2>
+            </div>
+            <div id="collapseFortalezas" class="collapse" aria-labelledby="headingFortalezas" data-parent="#accordionFoda">
+                <div class="card-body text-dark">
+                    <ul>
+                        {% for fortaleza in fortalezas %}
+                        <li>{{ fortaleza.nombre }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card debilidades-bg">
+            <div class="card-header" id="headingDebilidades">
+                <h2 class="mb-0 d-flex justify-content-center">
+                    <button class="btn btn-link text-dark" type="button" data-toggle="collapse" data-target="#collapseDebilidades" aria-expanded="false" aria-controls="collapseDebilidades">
+                        Debilidades
+                    </button>
+                </h2>
+            </div>
+            <div id="collapseDebilidades" class="collapse" aria-labelledby="headingDebilidades" data-parent="#accordionFoda">
+                <div class="card-body text-dark">
+                    <ul>
+                        {% for debilidad in debilidades %}
+                        <li>{{ debilidad.nombre }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card oportunidades-bg">
+            <div class="card-header" id="headingOportunidades">
+                <h2 class="mb-0 d-flex justify-content-center">
+                    <button class="btn btn-link text-dark" type="button" data-toggle="collapse" data-target="#collapseOportunidades" aria-expanded="false" aria-controls="collapseOportunidades">
+                        Oportunidades
+                    </button>
+                </h2>
+            </div>
+            <div id="collapseOportunidades" class="collapse" aria-labelledby="headingOportunidades" data-parent="#accordionFoda">
+                <div class="card-body text-dark">
+                    <ul>
+                        {% for oportunidad in oportunidades %}
+                        <li>{{ oportunidad.nombre }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card amenazas-bg">
+            <div class="card-header" id="headingAmenazas">
+                <h2 class="mb-0 d-flex justify-content-center">
+                    <button class="btn btn-link text-dark" type="button" data-toggle="collapse" data-target="#collapseAmenazas" aria-expanded="false" aria-controls="collapseAmenazas">
+                        Amenazas
+                    </button>
+                </h2>
+            </div>
+            <div id="collapseAmenazas" class="collapse" aria-labelledby="headingAmenazas" data-parent="#accordionFoda">
+                <div class="card-body text-dark">
+                    <ul>
+                        {% for amenaza in amenazas %}
+                        <li>{{ amenaza.nombre }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br><br>
+    <h2 class="text-center my-4">Actores</h2>
+    <div class="accordion" id="accordionActores">
+        <div class="card">
+            <div class="card-header" id="headingActores">
+                <h2 class="mb-0 d-flex justify-content-center">
+                    <button class="btn btn-link text-dark" type="button" data-toggle="collapse" data-target="#collapseActores" aria-expanded="false" aria-controls="collapseActores">
+                        Actores
+                    </button>
+                </h2>
+            </div>
+            <div id="collapseActores" class="collapse" aria-labelledby="headingActores" data-parent="#accordionActores">
+                <div class="card-body text-dark">
+                    <ul>
+                        {% for actor in actores %}
+                        <li>{{ actor.nombre }}: {{ actor.objetivo }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+   
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const importanceUncertaintyData = {{ importance_uncertainty_data|safe }};
@@ -602,9 +790,12 @@
 
 
 
+    <br><br>
 
-
-
+                                <ul class="actions d-flex justify-content-center" >
+                                    <li><input type="submit" value="Volver!!" class="primary" /></li>
+                                    
+                                </ul>
 
 
 
@@ -612,10 +803,10 @@
 									
 								</form>
 
-								<ul style="text-align: center;">
-									<li style="display: inline-block;"><input type="submit" value="Volver" class="primary" /></li>
-								</ul>
-								
+							
+
+
+                               
 								<ul class="icons" style="text-align: center;">
 									<li style="display: inline-block;"><a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
 									<li style="display: inline-block;"><a href="#" class="icon brands fa-facebook-f"><span class="label">Facebook</span></a></li>
@@ -629,9 +820,9 @@
 					
 
 				<!-- Footer -->
-					<footer id="footer">
-						<p class="copyright"> Desarrollado por [PEREZ, Nicol&aacute;s] &copy [2024] Todos los derechos reservados.  Dise&ntilde;o web: <a href="https://html5up.net">HTML5 UP</a>. <a href="https://www.uces.edu.ar/carreras-posgrados/ciencias-de-la-administracion-comunicacion-y-negocios/especializacion-prospectiva-estrategica-modalidad-virtual">Pensado para UCES - EPE</a>.</p>
-					</footer>
+                <footer id="footer">
+                    <p class="copyright" style="color: #cccccc;"> Desarrollado por [PEREZ, Nicolás] &copy [2024] Todos los derechos reservados.  Diseño web: <a href="https://html5up.net">HTML5 UP</a>. <a href="https://www.uces.edu.ar/carreras-posgrados/ciencias-de-la-administracion-comunicacion-y-negocios/especializacion-prospectiva-estrategica-modalidad-virtual">Pensado para UCES - EPE</a>.</p>
+                </footer>
 
 			</div>
 
@@ -666,6 +857,11 @@
 
 
 		<script src="{% static 'AppUcesTFE/disper.js' %}"></script>
+
+
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 	
 
 	</body>
