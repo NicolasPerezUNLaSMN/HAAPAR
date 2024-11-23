@@ -219,7 +219,7 @@ def detalle_proyecto(request, proyecto_id):
 
     # Construir los datos del árbol PESTEL
     tree_data = [
-        {'id': '0.0', 'parent': '', 'name2': proyecto.tema, 'name': f"Estudio al {proyecto.hasta}, creado por: {proyecto.usuario}"}
+        {'id': '0.0', 'parent': '', 'name2': f"Estudio al {proyecto.hasta}", 'name': proyecto.tema}
     ]
 
     pestel_categories = ['Política', 'Económica', 'Social', 'Tecnológica', 'Ecológica', 'Legal']
