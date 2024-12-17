@@ -1,6 +1,6 @@
 # HAAPAR: Herramienta de Automatización para Análisis Prospectivo
 
-Proyecto final de la Especialización en Prospectiva Estrategica (UCES). 
+Proyecto diseñado a medida de la carrera de: Especialización en Prospectiva Estrategica (UCES). 
 HAAPAR es un software desarrollado en Python y Django, diseñado para automatizar análisis prospectivo estratégico utilizando PostgreSQL como base de datos. Este proyecto incluye herramientas para la generación de escenarios, matrices de impacto cruzado y más, todo optimizado para implementarse en entornos virtuales.
 
 ## **Requisitos Previos**
